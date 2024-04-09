@@ -1,6 +1,10 @@
 import { action, autorun, computed, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react-lite";
 
+/**
+ * Not used, just some code I had for playing around with things. From https://mobx.js.org/getting-started
+ */
+
 class ObservableTodoStore {
   todos = [];
   pendingRequests = 0;

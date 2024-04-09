@@ -1,4 +1,3 @@
-import './App.css';
 import { observer } from "mobx-react-lite";
 import { increment, massiveSelectorsArray, useCountSelector } from "./redux";
 import { useDispatch, useSelector } from "react-redux";
