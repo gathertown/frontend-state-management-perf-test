@@ -4,9 +4,9 @@ import { NUM_SELECTORS } from "./constants";
 
 // create a really large array of selectors that do nothing
 export const massiveSelectorsArray = [...Array(NUM_SELECTORS)].map(i => createSelector(
-  (state) => state.other,
+  (state) => undefined,
   // always return the same value
-  (counterState) => i
+  (counterState) => 1
 ))
 
 const counterSlice = createSlice({

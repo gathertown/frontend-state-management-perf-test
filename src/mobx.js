@@ -3,6 +3,7 @@ import { NUM_SELECTORS, WRITES_PER_SECOND } from "./constants";
 
 class CountStore {
   count = 0
+  stateThatDoesNotChange = null
 
   constructor() {
     const annotations = {

@@ -2,20 +2,28 @@ import { observer } from "mobx-react-lite";
 import { increment, massiveSelectorsArray, useCountSelector } from "./redux";
 import { useDispatch, useSelector } from "react-redux";
 import { countStore } from "./mobx";
-import { WRITES_PER_SECOND } from "./constants";
+import { NUM_SELECTORS, WRITES_PER_SECOND } from "./constants";
+import React from "react";
 
-let writeInterval = null
-const ReduxExperiment = () => {
-  const count = useCountSelector()
+// Pull out dummy component so that React doesn't need to do re-render work. This isolates the computation to just
+// the selectors checking whether they need to trigger a re-render.
+const DummyComponentThatWontRerender = React.memo(() => {
   for (let i = 0; i < massiveSelectorsArray.length; i++) {
     // this is run synchronously every time in the right order, it's okay
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useSelector(massiveSelectorsArray[i])
   }
+  return <div>Dummy</div>
+})
+
+let writeInterval = null
+const ReduxExperiment = () => {
+  const count = useCountSelector()
   const dispatch = useDispatch()
   return (
     <div>
       <h2>Redux</h2>
+      <DummyComponentThatWontRerender/>
       <div>Count: {count}</div>
       <button onClick={() => {
         dispatch(increment())
@@ -24,7 +32,6 @@ const ReduxExperiment = () => {
       </button>
       <div>
         <button onClick={() => {
-          // BIG hack
           writeInterval = setInterval(() => {
             for (let i = 0; i < WRITES_PER_SECOND; i++) {
               // wrap in timeout to not perform updates synchronously
@@ -48,6 +55,17 @@ const ReduxExperiment = () => {
   );
 }
 
+const SmallComponent = React.memo(({ index }) => {
+    return <div/>
+  }
+)
+
+const SmallMobXObserver = observer(({ index }) => {
+  // eslint-disable-next-line no-unused-expressions
+  countStore.stateThatDoesNotChange
+  return <div/>
+})
+
 const MobXExperiment = observer(() => {
   return (
     <div>
@@ -65,6 +83,13 @@ const MobXExperiment = observer(() => {
           Stop heavy writes
         </button>
       </div>
+
+      {/*
+        * When rendering a large number of components, it takes roughly the same time for React to re-render, regardless
+        * of whether it's a MobX observer or not. Compare performance by uncommenting each of these lines in isolation
+        */}
+      {/*{[...Array(NUM_SELECTORS)].map(i => (<SmallMobXObserver key={i} index={i} />))}*/}
+      {/*{[...Array(NUM_SELECTORS)].map(i => (<SmallComponent key={i} index={i} />))}*/}
     </div>
   );
 })
@@ -79,7 +104,7 @@ const PerformanceComparison = () => (
 )
 
 function App() {
-  return <PerformanceComparison />
+  return <PerformanceComparison/>
 }
 
 export default App;
