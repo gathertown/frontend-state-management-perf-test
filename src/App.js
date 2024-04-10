@@ -7,7 +7,7 @@ import React from "react";
 
 // Pull out dummy component so that React doesn't need to do re-render work. This isolates the computation to just
 // the selectors checking whether they need to trigger a re-render.
-const DummyComponentThatWontRerender = React.memo(() => {
+const DummyComponentThatWontRerenderRedux = React.memo(() => {
   for (let i = 0; i < massiveSelectorsArray.length; i++) {
     // this is run synchronously every time in the right order, it's okay
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -23,7 +23,7 @@ const ReduxExperiment = () => {
   return (
     <div>
       <h2>Redux</h2>
-      <DummyComponentThatWontRerender/>
+      <DummyComponentThatWontRerenderRedux />
       <div>Count: {count}</div>
       <button onClick={() => {
         dispatch(increment())
@@ -66,10 +66,22 @@ const SmallMobXObserver = observer(({ index }) => {
   return <div/>
 })
 
+// Pull out dummy component so that React doesn't need to do re-render work. This isolates the computation to just
+// the selectors checking whether they need to trigger a re-render.
+const DummyComponentThatWontRerenderMobX = observer(() => {
+  for (let i = 0; i < NUM_SELECTORS; i++) {
+    // simply de-referencing the observable is enough to count as needing to observe
+    // eslint-disable-next-line no-unused-expressions
+    countStore[`count${i}`]
+  }
+  return <div>Dummy</div>
+})
+
 const MobXExperiment = observer(() => {
   return (
     <div>
       <h2>MobX</h2>
+      <DummyComponentThatWontRerenderMobX/>
       <div>Count: {countStore.count}</div>
       <button onClick={() => countStore.increment()}>
         Click
